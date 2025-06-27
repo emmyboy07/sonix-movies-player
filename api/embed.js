@@ -90,6 +90,40 @@ module.exports = async (req, res) => {
     `);
   } catch (error) {
     console.error("Proxy error:", error.message);
-    res.status(500).send("Error processing URL.");
+    // Try to extract TMDB ID and type from the URL for fallback
+    const { url } = req.query;
+    const movieMatch = url && url.match(/\/embed\/movie\/(\d+)/);
+    const tvMatch = url && url.match(/\/embed\/tv\/(\d+)(?:\/(\d+))?(?:\/(\d+))?/);
+    let autoEmbedUrl = null;
+    if (movieMatch) {
+      autoEmbedUrl = `https://autoembed.pro/embed/movie/${movieMatch[1]}`;
+    } else if (tvMatch) {
+      const tmdbId = tvMatch[1];
+      const season = tvMatch[2] || 1;
+      const episode = tvMatch[3] || 1;
+      autoEmbedUrl = `https://autoembed.pro/embed/tv/${tmdbId}/${season}/${episode}`;
+    }
+    if (autoEmbedUrl) {
+      res.setHeader("Content-Type", "text/html");
+      return res.send(`
+        <!DOCTYPE html>
+        <html lang=\"en\">
+        <head>
+          <meta charset=\"UTF-8\">
+          <title>AutoEmbed Fallback</title>
+          <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+          <style>
+            body, html { margin: 0; padding: 0; height: 100%; background: #000; }
+            iframe { width: 100%; height: 100%; border: none; }
+          </style>
+        </head>
+        <body>
+          <iframe src=\"${autoEmbedUrl}\" allowfullscreen sandbox=\"allow-same-origin allow-scripts\"></iframe>
+        </body>
+        </html>
+      `);
+    } else {
+      res.status(500).send("Error processing URL and no fallback could be determined.");
+    }
   }
 };
