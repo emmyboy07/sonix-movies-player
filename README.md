@@ -1,8 +1,8 @@
-# VidSrc-Embeds-NoAds
+# Sonix Player
 
-**VidSrc-Embeds-NoAds** is a minimalist, serverless proxy built with **Node.js**, leveraging **Axios** and **Cheerio** to fetch and sanitize video embed content from **VidSrc**. Its goal is simple yet powerful: strip all ads from embedded players, returning a clean and safe iframe for use on any website or application.
+**Sonix Player** is a minimalist, serverless proxy built with **Node.js**, leveraging **Axios** and **Cheerio** to fetch and sanitize video embed content from **Sonix Movies**. Its goal is simple yet powerful: strip all ads from embedded players, returning a clean and safe iframe for use on any website or application.
 
-> 🚀 **This repository serves for promotion only. For full access to the source code, documentation, and updates, please visit the official website: [scriptsrc.com](https://scriptsrc.com/scripts/vidsrc-embeds-noads/)**
+> 🚀 **This repository is for Sonix Movies at [sonix-movies-vercel-app](https://sonix-movies-vercel-app). For full access to the source code, documentation, and updates, please visit the official website.**
 
 ---
 
@@ -10,7 +10,7 @@
 
 1. Send a request to the endpoint:  
    ```
-   /embed?url=https://vidsrc.in/embed/ID
+   /embed?url=https://sonix-movies-vercel-app/embed/ID
    ```
 2. The proxy fetches and processes the embed content.
 3. It returns a clean, ad-free iframe ready for direct use.
@@ -30,7 +30,7 @@
 ## 🧪 Example Usage
 
 ```
-https://vid-src-embeds-no-ads-demo.vercel.app/embed?url=https://vidsrc.in/embed/tt0944947/2-3/
+https://sonix-movies-vercel-app/embed?url=https://sonix-movies-vercel-app/embed/tt0944947/2-3/
 ```
 
 > ✅ Output: Clean HTML with only the video iframe
@@ -47,9 +47,9 @@ https://vid-src-embeds-no-ads-demo.vercel.app/embed?url=https://vidsrc.in/embed/
 
 ## 📥 Download & Documentation
 
-📌 **The full source code, installation guide, and updates are available exclusively at:**
+📌 **The full source code, installation guide, and updates are available at:**
 
-👉 [https://scriptsrc.com](https://scriptsrc.com/scripts/vidsrc-embeds-noads/)
+👉 [https://sonix-movies-vercel-app](https://sonix-movies-vercel-app)
 
 ---
 
@@ -65,4 +65,8 @@ For support, suggestions, or inquiries, please use the contact section on the of
 
 ---
 
-**🔗 Official Website:** [https://scriptsrc.com](https://scriptsrc.com)
+**🔗 Official Website:** [https://sonix-movies-vercel-app](https://sonix-movies-vercel-app)
+
+---
+
+**Made by Emmytech with love.**
