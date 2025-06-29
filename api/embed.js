@@ -4,15 +4,23 @@ const cheerio = require("cheerio");
 module.exports = async (req, res) => {
   const { url } = req.query;
 
+  // Custom endpoint info and warning for root or invalid requests
   if (!url || !url.startsWith("https://vidsrc.in/embed/")) {
-    return res.status(400).send("Invalid or missing URL");
+    return res.status(400).send(
+      `<h2>sonix-movies player api</h2>
+      <p><strong>Warning:</strong> Do not tamper with or attempt to scrape this API. Unauthorized use is prohibited and may result in access being blocked.</p>`
+    );
   }
 
   // Helper to fetch and cleanly embed any supported player URL
   async function fetchAndEmbed(targetUrl, fallbackTitle = "AutoEmbed Fallback") {
     try {
       const response = await axios.get(targetUrl, {
-        headers: { "User-Agent": "Mozilla/5.0" },
+        headers: {
+          "User-Agent": "Mozilla/5.0",
+          "Referer": "https://vidsrc.vip/",
+          "Accept-Language": "en-US,en;q=0.9",
+        },
       });
       const $ = cheerio.load(response.data);
       const iframe = $("iframe").first();
@@ -21,11 +29,11 @@ module.exports = async (req, res) => {
       const pageTitle = $("title").text().trim() || fallbackTitle;
       return `
         <!DOCTYPE html>
-        <html lang=\"en\">
+        <html lang="en">
         <head>
-          <meta charset=\"UTF-8\">
+          <meta charset="UTF-8">
           <title>${pageTitle}</title>
-          <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <style>
             body, html { 
               margin: 0; 
