@@ -68,12 +68,12 @@ module.exports = async (req, res) => {
     const tvMatch = url.match(/\/embed\/tv\/(\d+)(?:\/(\d+))?(?:\/(\d+))?/);
     let autoEmbedUrl = null;
     if (movieMatch) {
-      autoEmbedUrl = `https://vidsrc.vip/embed/movie/${movieMatch[1]}`;
+      autoEmbedUrl = `https://vidsrc.icu/embed/movie/${movieMatch[1]}`;
     } else if (tvMatch) {
       const tmdbId = tvMatch[1];
       const season = tvMatch[2] || 1;
       const episode = tvMatch[3] || 1;
-      autoEmbedUrl = `https://vidsrc.vip/embed/tv/${tmdbId}/${season}/${episode}`;
+      autoEmbedUrl = `https://vidsrc.icu/embed/tv/${tmdbId}/${season}/${episode}`;
     }
     if (autoEmbedUrl) {
       const fallbackHtml = await fetchAndEmbed(autoEmbedUrl, "AutoEmbed Fallback");
