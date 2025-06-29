@@ -35,7 +35,7 @@ module.exports = async (req, res) => {
         .section-title {
           font-size: 2rem;
           margin-bottom: 1rem;
-          color: #fff;
+          color: red;
         }
 
         .script-info p {
