@@ -5,7 +5,7 @@ module.exports = async (req, res) => {
     <html lang="ro">
     <head>
       <meta charset="UTF-8">
-      <title>VidSrc-Embeds-NoAds by ScriptSRC</title>
+      <title>sonix-movies player api</title>
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <style>
         html, body {
@@ -62,10 +62,10 @@ module.exports = async (req, res) => {
     </head>
     <body>
       <div class="content-wrapper">
-        <h1 class="section-title">VidSrc-Embeds-NoAds</h1>
+        <h1 class="section-title">sonix-movies player api</h1>
         <div class="script-info">
-          <p>This proxy was proudly created by <strong><a href="https://scriptsrc.com" target="_blank">ScriptSRC.com</a></strong> to remove advertisements from VidSrc embed players.</p
-          <p>To use it, simply append the target embed URL to the <strong>/embed?url=</strong> endpoint. For example: <strong><a href="https://vid-src-embeds-no-ads-demo.vercel.app/embed?url=https://vidsrc.in/embed/tt0944947/2-3/" target="_blank">/embed?url=https://vidsrc.in/embed/tt0944947/2-3/</a></strong> will return a clean, ad-free video player.</p>
+          <p>This API belongs to <strong><a href="https://sonix-movies.vercel.app" target="_blank">sonix movies</a></strong>.</p>
+          <p>Do not tamper with or attempt to scrape this API. Unauthorized use is prohibited and may result in access being blocked.</p>
         </div>
       </div>
     </body>
