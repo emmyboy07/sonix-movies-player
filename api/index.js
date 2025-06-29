@@ -13,7 +13,7 @@ module.exports = async (req, res) => {
           padding: 0;
           height: 100%;
           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-          background-color: black;
+          background-color: white;
           color: #171c24;
           display: flex;
           justify-content: center;
@@ -44,7 +44,7 @@ module.exports = async (req, res) => {
         }
 
         .script-info code {
-          background-color: #eaeef2;
+          background-color: black;
           padding: 0.2rem 0.5rem;
           border-radius: 4px;
           font-family: monospace;
