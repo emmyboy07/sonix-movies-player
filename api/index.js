@@ -13,7 +13,7 @@ module.exports = async (req, res) => {
           padding: 0;
           height: 100%;
           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-          background-color: #00ffff;
+          background-color: black;
           color: #171c24;
           display: flex;
           justify-content: center;
