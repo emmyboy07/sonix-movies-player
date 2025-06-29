@@ -13,18 +13,18 @@ module.exports = async (req, res) => {
           padding: 0;
           height: 100%;
           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-          background-color: white;
-          color: #171c24;
+          background-color: #000;
+          color: #fff;
           display: flex;
           justify-content: center;
           align-items: center;
         }
 
         .content-wrapper {
-          background: rgb(0, 0, 0);
+          background: #111;
           padding: 2rem;
           border-radius: 12px;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
           max-width: 600px;
           width: 100%;
           box-sizing: border-box;
@@ -35,28 +35,30 @@ module.exports = async (req, res) => {
         .section-title {
           font-size: 2rem;
           margin-bottom: 1rem;
-          color: #ff0000;
+          color: #fff;
         }
 
         .script-info p {
           margin-bottom: 1rem;
           line-height: 1.6;
+          color: #fff;
         }
 
         .script-info code {
-          background-color: black;
+          background-color: #222;
           padding: 0.2rem 0.5rem;
           border-radius: 4px;
           font-family: monospace;
+          color: #fff;
         }
 
         .script-info a {
-          color: #ff0000;
-          text-decoration: none;
+          color: #fff;
+          text-decoration: underline;
         }
 
         .script-info a:hover {
-          text-decoration: underline;
+          color: #ff0000;
         }
       </style>
     </head>
