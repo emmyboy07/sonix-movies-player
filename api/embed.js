@@ -5,7 +5,7 @@ module.exports = async (req, res) => {
   const { url } = req.query;
 
   // Custom endpoint info and warning for root or invalid requests
-  if (!url || (!url.startsWith("https://player.videasy.net/movie/") && !url.startsWith("https://player.videasy.net/tv/"))) {
+  if (!url || (!url.startsWith("https://player.videasy.net/") && !url.startsWith("https://player.videasy.net/"))) {
     return res.status(400).send(
       `<h2>sonix-movies player api</h2>
       <p><strong>Warning:</strong> Do not tamper with or attempt to scrape this API. Unauthorized use is prohibited and may result in access being blocked.</p>`
