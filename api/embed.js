@@ -5,95 +5,56 @@ module.exports = async (req, res) => {
   const { url } = req.query;
 
   if (!url || !url.startsWith("https://vidsrc.in/embed/")) {
-    return res.status(400).send(
-      `<h2>sonix-movies player api</h2>
-      <p><strong>Warning:</strong> Do not tamper with or attempt to scrape this API. Unauthorized use is prohibited and may result in access being blocked.</p>`
-    );
-  }
-
-  async function fetchAndEmbed(targetUrl, fallbackTitle = "AutoEmbed Fallback") {
-    try {
-      const response = await axios.get(targetUrl, {
-        headers: {
-          "User-Agent": "Mozilla/5.0",
-          "Referer": "https://vidsrc.vip/",
-          "Accept-Language": "en-US,en;q=0.9",
-        },
-      });
-      const $ = cheerio.load(response.data);
-      const iframe = $("iframe").first();
-      if (!iframe.length) return null;
-      iframe.attr("sandbox", "allow-same-origin allow-scripts");
-      const pageTitle = $("title").text().trim() || fallbackTitle;
-      return `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <title>${pageTitle}</title>
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <style>
-            body, html {
-              margin: 0;
-              padding: 0;
-              height: 100%;
-              background: #000;
-              overflow: hidden;
-            }
-            iframe {
-              width: 100%;
-              height: 100%;
-              border: none;
-              overflow: hidden;
-              scrollbar-width: none;
-            }
-            iframe::-webkit-scrollbar {
-              display: none;
-            }
-          </style>
-        </head>
-        <body>
-          ${$.html(iframe)}
-        </body>
-        </html>
-      `;
-    } catch (e) {
-      return null;
-    }
+    return res.status(400).send("Invalid or missing URL");
   }
 
   try {
-    const mainHtml = await fetchAndEmbed(url, "VidSrc-Embeds-NoAds made by ScriptSRC.com");
-    if (mainHtml) {
-      res.setHeader("Content-Type", "text/html");
-      return res.send(mainHtml);
+    const response = await axios.get(url, {
+      headers: {
+        "User-Agent": "Mozilla/5.0",
+      },
+    });
+
+    const $ = cheerio.load(response.data);
+
+    const iframe = $("iframe").first();
+    const pageTitle = $("title").text().trim() || "VidSrc-Embeds-NoAds made by ScriptSRC.com";
+
+    if (!iframe.length) {
+      return res.status(404).send("The iframe was not found.");
     }
 
-    // AutoEmbed fallback parsing
-    const movieMatch = url.match(/\/embed\/movie\/(\d+)/);
-    const tvMatch = url.match(/\/embed\/tv\/(\d+)(?:\/(\d+))?(?:\/(\d+))?/);
+    iframe.attr("sandbox", "allow-same-origin allow-scripts");
 
-    let fallbackUrl = null;
-    if (movieMatch) {
-      fallbackUrl = `https://autoembed.pro/embed/movie/${movieMatch[1]}`;
-    } else if (tvMatch) {
-      const tmdbId = tvMatch[1];
-      const season = tvMatch[2] || 1;
-      const episode = tvMatch[3] || 1;
-      fallbackUrl = `https://autoembed.pro/embed/tv/${tmdbId}/${season}/${episode}`;
-    }
-
-    if (fallbackUrl) {
-      const fallbackHtml = await fetchAndEmbed(fallbackUrl, "AutoEmbed Fallback");
-      if (fallbackHtml) {
-        res.setHeader("Content-Type", "text/html");
-        return res.send(fallbackHtml);
-      }
-    }
-
-    return res.status(404).send("The iframe was not found and no fallback could be determined.");
+    res.setHeader("Content-Type", "text/html");
+    res.send(`
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <title>${pageTitle}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+          body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background: #000;
+          }
+          iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+          }
+        </style>
+      </head>
+      <body>
+        ${$.html(iframe)}
+      </body>
+      </html>
+    `);
   } catch (error) {
     console.error("Proxy error:", error.message);
-    return res.status(500).send("Error processing URL and no fallback could be determined.");
+    res.status(500).send("Error processing URL.");
   }
 };
