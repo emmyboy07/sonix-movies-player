@@ -2,67 +2,116 @@ const axios = require("axios");
 const cheerio = require("cheerio");
 
 module.exports = async (req, res) => {
-  // Default color is #ff0000 (remove # for URL param)
-  let { url, color = "#ff0000" } = req.query;
-  color = color.replace(/^#/, "");
+  const { url } = req.query;
 
-  let embedUrl = "";
-  let pageTitle = "Videasy Player";
-
-  // Parse vidsrc.xyz movie
-  const vidsrcMovie = url && url.match(/vidsrc\.xyz\/embed\/movie\/(\d+)/);
-  // Parse vidsrc.xyz TV
-  const vidsrcTV = url && url.match(/vidsrc\.xyz\/embed\/tv\/(\d+)\/(\d+)-(\d+)/);
-  // Parse Videasy movie
-  const videasyMovie = url && url.match(/player\.videasy\.net\/movie\/(\d+)/);
-  // Parse Videasy TV
-  const videasyTV = url && url.match(/player\.videasy\.net\/tv\/(\d+)\/(\d+)\/(\d+)/);
-
-  if (vidsrcMovie) {
-    embedUrl = `https://player.videasy.net/movie/${vidsrcMovie[1]}?color=${color}`;
-    pageTitle = `Videasy Movie ${vidsrcMovie[1]}`;
-  } else if (vidsrcTV) {
-    const showId = vidsrcTV[1];
-    const season = vidsrcTV[2];
-    const episode = vidsrcTV[3];
-    embedUrl = `https://player.videasy.net/tv/${showId}/${season}/${episode}?color=${color}`;
-    pageTitle = `Videasy TV ${showId} S${season}E${episode}`;
-  } else if (videasyMovie) {
-    embedUrl = url.includes("?") ? `${url}&color=${color}` : `${url}?color=${color}`;
-    pageTitle = `Videasy Movie ${videasyMovie[1]}`;
-  } else if (videasyTV) {
-    embedUrl = url.includes("?") ? `${url}&color=${color}` : `${url}?color=${color}`;
-    pageTitle = `Videasy TV ${videasyTV[1]} S${videasyTV[2]}E${videasyTV[3]}`;
-  } else {
+  // Custom endpoint info and warning for root or invalid requests
+  if (!url || (!url.startsWith("https://player.videasy.net/movie/") && !url.startsWith("https://player.videasy.net/tv/"))) {
     return res.status(400).send(
       `<h2>sonix-movies player api</h2>
-      <p><strong>Warning:</strong> Invalid or missing URL. Please provide a valid movie or TV embed URL.<br>
-      Supported:<br>
-      - https://vidsrc.xyz/embed/movie/&lt;id&gt;<br>
-      - https://vidsrc.xyz/embed/tv/&lt;id&gt;/&lt;season&gt;-&lt;episode&gt;<br>
-      - https://player.videasy.net/movie/&lt;id&gt;<br>
-      - https://player.videasy.net/tv/&lt;id&gt;/&lt;season&gt;/&lt;episode&gt;<br>
-      </p>`
+      <p><strong>Warning:</strong> Do not tamper with or attempt to scrape this API. Unauthorized use is prohibited and may result in access being blocked.</p>`
     );
   }
 
-  // Respond with the iframe embed
-  res.setHeader("Content-Type", "text/html");
-  return res.send(`
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <title>${pageTitle}</title>
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <style>
-        body, html { margin: 0; padding: 0; height: 100%; background: #000; overflow: hidden; }
-        iframe { width: 100%; height: 100%; border: none; }
-      </style>
-    </head>
-    <body>
-      <iframe src="${embedUrl}" allowfullscreen sandbox="allow-same-origin allow-scripts"></iframe>
-    </body>
-    </html>
-  `);
+  // Helper to fetch and cleanly embed any supported player URL
+  async function fetchAndEmbed(targetUrl, fallbackTitle = "AutoEmbed Fallback") {
+    try {
+      const response = await axios.get(targetUrl, {
+        headers: {
+          "User-Agent": "Mozilla/5.0",
+          "Referer": "https://vidsrc.vip/",
+          "Accept-Language": "en-US,en;q=0.9",
+        },
+      });
+      const $ = cheerio.load(response.data);
+      const iframe = $("iframe").first();
+      if (!iframe.length) return null;
+      iframe.attr("sandbox", "allow-same-origin allow-scripts");
+      const pageTitle = $("title").text().trim() || fallbackTitle;
+      return `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <title>${pageTitle}</title>
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <style>
+            body, html { 
+              margin: 0; 
+              padding: 0; 
+              height: 100%; 
+              background: #000; 
+              overflow: hidden; /* Hide scrollbars */
+            }
+            iframe { 
+              width: 100%; 
+              height: 100%; 
+              border: none; 
+              overflow: hidden; /* Hide scrollbars in iframe */
+              scrollbar-width: none; /* Firefox */
+            }
+            iframe::-webkit-scrollbar { 
+              display: none; /* Chrome, Safari */
+            }
+          </style>
+        </head>
+        <body>
+          ${$.html(iframe)}
+        </body>
+        </html>
+      `;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  try {
+    // Try Videasy first
+    const movieMatch = url.match(/\/embed\/movie\/(\d+)/);
+    const tvMatch = url.match(/\/embed\/tv\/(\d+)(?:\/(\d+))?(?:\/(\d+))?/);
+    let videasyUrl = null;
+    const accentColor = "ff0000"; // Red color
+
+    if (movieMatch) {
+      // https://player.videasy.net/movie/movie_id?color=ff0000
+      videasyUrl = `https://player.videasy.net/movie/${movieMatch[1]}?color=${accentColor}`;
+    } else if (tvMatch) {
+      // https://player.videasy.net/tv/show_id/season/episode?color=ff0000
+      const showId = tvMatch[1];
+      const season = tvMatch[2] || 1;
+      const episode = tvMatch[3] || 1;
+      videasyUrl = `https://player.videasy.net/tv/${showId}/${season}/${episode}?color=${accentColor}`;
+    }
+
+    if (videasyUrl) {
+      // Directly embed the Videasy iframe
+      const pageTitle = "Videasy Player";
+      const iframeHtml = `<iframe src="${videasyUrl}" sandbox="allow-same-origin allow-scripts" style="width:100%;height:100%;border:none;overflow:hidden;" allowfullscreen></iframe>`;
+      const html = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <title>${pageTitle}</title>
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <style>
+            body, html { margin: 0; padding: 0; height: 100%; background: #000; overflow: hidden; }
+            iframe { width: 100%; height: 100%; border: none; overflow: hidden; scrollbar-width: none; }
+            iframe::-webkit-scrollbar { display: none; }
+          </style>
+        </head>
+        <body>
+          ${iframeHtml}
+        </body>
+        </html>
+      `;
+      res.setHeader("Content-Type", "text/html");
+      return res.send(html);
+    }
+
+    // If not found, fallback to old logic (optional, or just 404)
+    return res.status(404).send("The iframe was not found and no fallback could be determined.");
+  } catch (error) {
+    console.error("Proxy error:", error.message);
+    return res.status(500).send("Error processing URL and no fallback could be determined.");
+  }
 };
