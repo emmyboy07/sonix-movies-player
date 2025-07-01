@@ -2,37 +2,47 @@ const axios = require("axios");
 const cheerio = require("cheerio");
 
 module.exports = async (req, res) => {
-  const { url, color = "ff0000" } = req.query;
+  // Default color is #ff0000 (remove # for URL param)
+  let { url, color = "#ff0000" } = req.query;
+  color = color.replace(/^#/, "");
 
-  // Accept only Videasy URLs or parse from vidsrc.xyz embed URLs
   let embedUrl = "";
   let pageTitle = "Videasy Player";
 
-  // Parse movie
-  const movieMatch = url && url.match(/\/embed\/movie\/(\d+)/);
-  // Parse TV
-  const tvMatch = url && url.match(/\/embed\/tv\/(\d+)\/(\d+)-(\d+)/);
+  // Parse vidsrc.xyz movie
+  const vidsrcMovie = url && url.match(/vidsrc\.xyz\/embed\/movie\/(\d+)/);
+  // Parse vidsrc.xyz TV
+  const vidsrcTV = url && url.match(/vidsrc\.xyz\/embed\/tv\/(\d+)\/(\d+)-(\d+)/);
+  // Parse Videasy movie
+  const videasyMovie = url && url.match(/player\.videasy\.net\/movie\/(\d+)/);
+  // Parse Videasy TV
+  const videasyTV = url && url.match(/player\.videasy\.net\/tv\/(\d+)\/(\d+)\/(\d+)/);
 
-  if (movieMatch) {
-    embedUrl = `https://player.videasy.net/movie/${movieMatch[1]}?color=${color}`;
-    pageTitle = `Videasy Movie ${movieMatch[1]}`;
-  } else if (tvMatch) {
-    const showId = tvMatch[1];
-    const season = tvMatch[2];
-    const episode = tvMatch[3];
+  if (vidsrcMovie) {
+    embedUrl = `https://player.videasy.net/movie/${vidsrcMovie[1]}?color=${color}`;
+    pageTitle = `Videasy Movie ${vidsrcMovie[1]}`;
+  } else if (vidsrcTV) {
+    const showId = vidsrcTV[1];
+    const season = vidsrcTV[2];
+    const episode = vidsrcTV[3];
     embedUrl = `https://player.videasy.net/tv/${showId}/${season}/${episode}?color=${color}`;
     pageTitle = `Videasy TV ${showId} S${season}E${episode}`;
-  } else if (
-    url &&
-    (url.startsWith("https://player.videasy.net/movie/") ||
-      url.startsWith("https://player.videasy.net/tv/"))
-  ) {
-    // Allow direct Videasy URLs, append color if not present
+  } else if (videasyMovie) {
     embedUrl = url.includes("?") ? `${url}&color=${color}` : `${url}?color=${color}`;
+    pageTitle = `Videasy Movie ${videasyMovie[1]}`;
+  } else if (videasyTV) {
+    embedUrl = url.includes("?") ? `${url}&color=${color}` : `${url}?color=${color}`;
+    pageTitle = `Videasy TV ${videasyTV[1]} S${videasyTV[2]}E${videasyTV[3]}`;
   } else {
     return res.status(400).send(
       `<h2>sonix-movies player api</h2>
-      <p><strong>Warning:</strong> Invalid or missing URL. Please provide a valid movie or TV embed URL.</p>`
+      <p><strong>Warning:</strong> Invalid or missing URL. Please provide a valid movie or TV embed URL.<br>
+      Supported:<br>
+      - https://vidsrc.xyz/embed/movie/&lt;id&gt;<br>
+      - https://vidsrc.xyz/embed/tv/&lt;id&gt;/&lt;season&gt;-&lt;episode&gt;<br>
+      - https://player.videasy.net/movie/&lt;id&gt;<br>
+      - https://player.videasy.net/tv/&lt;id&gt;/&lt;season&gt;/&lt;episode&gt;<br>
+      </p>`
     );
   }
 
