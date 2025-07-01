@@ -5,7 +5,7 @@ module.exports = async (req, res) => {
   const { url } = req.query;
 
   // Custom endpoint info and warning for root or invalid requests
-  if (!url || (!url.startsWith("https://player.videasy.net/") && !url.startsWith("https://player.videasy.net/"))) {
+  if (!url || (!url.startsWith("https://player.videasy.net/movie/") && !url.startsWith("https://player.videasy.net/tv/"))) {
     return res.status(400).send(
       `<h2>sonix-movies player api</h2>
       <p><strong>Warning:</strong> Do not tamper with or attempt to scrape this API. Unauthorized use is prohibited and may result in access being blocked.</p>`
@@ -66,8 +66,8 @@ module.exports = async (req, res) => {
 
   try {
     // Try Videasy first
-    const movieMatch = url.match(/\/embed\/movie\/(\d+)/);
-    const tvMatch = url.match(/\/embed\/tv\/(\d+)(?:\/(\d+))?(?:\/(\d+))?/);
+    const movieMatch = url.match(/\/movie\/(\d+)/);
+    const tvMatch = url.match(/\/tv\/(\d+)(?:\/(\d+))?(?:\/(\d+))?/);
     let videasyUrl = null;
     const accentColor = "ff0000"; // Red color
 
